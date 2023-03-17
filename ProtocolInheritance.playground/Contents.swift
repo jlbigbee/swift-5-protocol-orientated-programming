@@ -11,11 +11,28 @@ protocol TaggedPersistable: Taggable, CustomStringConvertible, Equatable {
     func persist(to url: URL) throws
 }
 
+extension TaggedPersistable{
+    init(tag: String, contentOf url: URL) throws {
+        let data = try Data.init(contentsOf: url)
+        self.init(tag: tag, data: data)
+    }
+    
+    func persist(to url: URL) throws {
+        try self.data.write(to: url)
+    }
+}
+
 protocol TaggedEncodable: Taggable {
     var base64: String { get }
 }
 
-struct MyData: Taggable {
+extension TaggedEncodable {
+    var base64: String {
+        return self.data.base64EncodedString()
+    }
+}
+
+struct MyData: TaggedPersistable, TaggedEncodable {
     
     var tag: String
     var data: Data
@@ -32,19 +49,24 @@ extension MyData: CustomStringConvertible {
     }
 }
 
-extension MyData: TaggedEncodable {
-    var base64: String {
-        return self.data.base64EncodedString()
-    }
-}
 
-extension MyData: TaggedPersistable {
-    init(tag: String, contentOf url: URL) throws {
-        let data = try Data.init(contentsOf: url)
-        self.init(tag: tag, data: data)
+struct PersistableData: TaggedPersistable {
+    init(tag: String, data: Data) {
+        self.tag = tag
+        self.data = data
     }
     
-    func persist(to url: URL) throws {
-        try self.data.write(to: url)
+    
+    var tag: String
+    
+    var data: Data
+    
+    var description: String {
+        return "PersistableData(\(tag)"
     }
+    
+    
 }
+
+let p = PersistableData(tag: "42", data: Data(repeating: 1, count: 10))
+
