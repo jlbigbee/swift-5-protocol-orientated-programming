@@ -1,24 +1,26 @@
 class PaymentController {
-    let amazonService: AmazonService
-    let etsyService: EtsyService
-    
-    init(amazon: AmazonService, etsy: EtsyService) {
-        amazonService = amazon
-        etsyService = etsy
+    let services: [Service]
+    init(services: [Service]) {
+        self.services = services
     }
     
     func calculateEarnings() -> Float {
-        amazonService.earnings + etsyService.totalSold
+        /*var result: Float = 0
+        services.forEach{ (service) in
+            result += service.total
+        }
+        return result*/
+        services.reduce(0) { $0 + $1.total }
     }
 }
 
-let amazonService = AmazonService()
-let etsyService = EtsyService()
+var amazonService = make(service: .amazon) //AmazonService()
+var etsyService = make(service: .etsy) //EtsyService()
 
-let controller = PaymentController(amazon: amazonService, etsy: etsyService)
+let controller = PaymentController(services: [amazonService, etsyService])
 
-amazonService.orderPlaced(payment: 100)
-etsyService.itemSold(profit: 25)
-amazonService.orderPlaced(payment: 12.50)
+amazonService.add(payment: 100)
+etsyService.add(payment: 25)
+amazonService.add(payment: 12.50)
 
 print("Total earned: \(controller.calculateEarnings())")
