@@ -3,5 +3,6 @@
     <pages>
         <page name='Subclasses'/>
         <page name='GodObject'/>
+        <page name='Protocols'/>
     </pages>
 </playground>
